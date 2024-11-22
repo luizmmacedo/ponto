@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contagem Regressiva a partir do horário de ponto</title>
+    <style>
+        /* Estilos principais da página */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f2f6fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Container centralizado */
+        .container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            width: 350px;
+            max-width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        /* Efeito de hover no container */
+        .container:hover {
+            transform: translateY(-10px);
+        }
+
+        h1 {
+            font-size: 26px;
+            color: #4A90E2;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+        }
+
+        /* Estilo para o input de horário */
+        input[type="time"] {
+            font-size: 18px;
+            padding: 10px;
+            margin: 20px 0;
+            border: 2px solid #4A90E2;
+            border-radius: 8px;
+            background-color: #f4f9ff;
+            width: 100%;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="time"]:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        /* Estilo para a contagem regressiva */
+        .countdown {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff5733;
+            margin-top: 20px;
+        }
+
+        /* Estilo para o horário atual */
+        #current-time {
+            font-size: 16px;
+            color: #777;
+            margin-top: 10px;
+        }
+
+        /* Estilo para as animações de carregamento */
+        .loading {
+            font-size: 24px;
+            color: #007BFF;
+            margin-top: 20px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            p {
+                font-size: 16px;
+            }
+
+            .countdown {
+                font-size: 28px;
+            }
+
+            #current-time {
+                font-size: 14px;
+            }
+
+            .loading {
+                font-size: 20px;
+            }
+
+            input[type="time"] {
+                font-size: 16px;
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                width: 90%;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            p {
+                font-size: 14px;
+            }
+
+            .countdown {
+                font-size: 24px;
+            }
+
+            #current-time {
+                font-size: 12px;
+            }
+
+            .loading {
+                font-size: 18px;
+            }
+
+            input[type="time"] {
+                font-size: 14px;
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Contagem Regressiva a partir do horário de ponto</h1>
+        <p>Digite o horário que você bateu seu ponto:</p>
+        <input type="time" id="hora-ponto">
+        <p id="current-time"></p>
+        <p class="countdown" id="countdown">00h 00m 00s</p>
+        <p class="loading" id="loading">Carregando...</p>
+    </div>
+
+    <script>
+        let horaObjetivo = 0;
+        let minutoObjetivo = 0;
+        let segundoObjetivo = 0;
+
+        // Função para atualizar a contagem
+        function atualizarContagem() {
+            // Pegar o horário atual
+            const agora = new Date();
+            const horaAtual = agora.getHours();
+            const minutoAtual = agora.getMinutes();
+            const segundoAtual = agora.getSeconds();
+
+            // Calcular a diferença em segundos
+            const segundosAgora = horaAtual * 3600 + minutoAtual * 60 + segundoAtual;
+            const segundosObjetivo = horaObjetivo * 3600 + minutoObjetivo * 60 + segundoObjetivo;
+            let diferencaSegundos = segundosObjetivo - segundosAgora;
+
+            if (diferencaSegundos < 0) {
+                diferencaSegundos += 24 * 3600; // Adicionar 24 horas se já passou do horário de ponto
+            }
+
+            // Calcular as horas, minutos e segundos restantes
+            const horasFaltando = Math.floor(diferencaSegundos / 3600);
+            const minutosFaltando = Math.floor((diferencaSegundos % 3600) / 60);
+            const segundosFaltando = diferencaSegundos % 60;
+
+            // Exibir a contagem regressiva
+            document.getElementById('countdown').textContent = `${horasFaltando}h ${minutosFaltando}m ${segundosFaltando}s`;
+
+            // Exibir o horário atual
+            document.getElementById('current-time').textContent = `Horário atual: ${horaAtual}:${minutoAtual < 10 ? '0' + minutoAtual : minutoAtual}:${segundoAtual < 10 ? '0' + segundoAtual : segundoAtual}`;
+        }
+
+        // Função para atualizar o horário de ponto selecionado
+        function atualizarHoraPonto() {
+            const horaPonto = document.getElementById('hora-ponto').value;
+            const loadingElement = document.getElementById('loading');
+            
+            if (horaPonto) {
+                const [hora, minuto] = horaPonto.split(':');
+                horaObjetivo = parseInt(hora, 10);
+                minutoObjetivo = parseInt(minuto, 10);
+                segundoObjetivo = 0;  // Sempre começa a contagem do segundo 0
+
+                // Atualiza a contagem assim que o horário é definido
+                atualizarContagem();
+
+                // Oculta a mensagem de "Carregando..."
+                loadingElement.style.display = 'none';
+            } else {
+                // Exibe a mensagem de "Carregando..." enquanto o horário não for definido
+                loadingElement.style.display = 'block';
+            }
+        }
+
+        // Atualiza a cada segundo
+        setInterval(atualizarContagem, 1000);
+
+        // A cada vez que o usuário seleciona o horário, chama a função
+        document.getElementById('hora-ponto').addEventListener('input', atualizarHoraPonto);
+
+        // Inicializar a contagem na primeira carga
+        atualizarContagem();
+    </script>
+
+</body>
+</html>
