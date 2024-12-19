@@ -79,11 +79,20 @@
             margin-top: 10px;
         }
 
+        /* Estilo para o horário final */
+        #final-time {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 10px;
+        }
+
         /* Estilo para as animações de carregamento */
         .loading {
             font-size: 24px;
             color: #007BFF;
             margin-top: 20px;
+            display: none; /* Inicialmente oculto */
         }
 
         /* Responsividade */
@@ -159,6 +168,7 @@
         <p>Digite o horário que você bateu seu ponto:</p>
         <input type="time" id="hora-ponto">
         <p id="current-time"></p>
+        <p id="final-time">Horário final: --:--</p> <!-- Exibição do horário final -->
         <p class="countdown" id="countdown">00h 00m 00s</p>
         <p class="loading" id="loading">Carregando...</p>
     </div>
@@ -167,6 +177,7 @@
         let horaObjetivo = 0;
         let minutoObjetivo = 0;
         let segundoObjetivo = 0;
+        const cargaHoraria = 6; // Carga horária de trabalho de 6 horas
 
         // Função para atualizar a contagem
         function atualizarContagem() {
@@ -190,11 +201,11 @@
             const minutosFaltando = Math.floor((diferencaSegundos % 3600) / 60);
             const segundosFaltando = diferencaSegundos % 60;
 
-            // Exibir a contagem regressiva
-            document.getElementById('countdown').textContent = `${horasFaltando}h ${minutosFaltando}m ${segundosFaltando}s`;
+            // Exibir a contagem regressiva com 2 dígitos
+            document.getElementById('countdown').textContent = `${String(horasFaltando).padStart(2, '0')}h ${String(minutosFaltando).padStart(2, '0')}m ${String(segundosFaltando).padStart(2, '0')}s`;
 
-            // Exibir o horário atual
-            document.getElementById('current-time').textContent = `Horário atual: ${horaAtual}:${minutoAtual < 10 ? '0' + minutoAtual : minutoAtual}:${segundoAtual < 10 ? '0' + segundoAtual : segundoAtual}`;
+            // Exibir o horário atual com 2 dígitos
+            document.getElementById('current-time').textContent = `Horário atual: ${String(horaAtual).padStart(2, '0')}:${String(minutoAtual).padStart(2, '0')}:${String(segundoAtual).padStart(2, '0')}`;
         }
 
         // Função para atualizar o horário de ponto selecionado
@@ -204,9 +215,19 @@
             
             if (horaPonto) {
                 const [hora, minuto] = horaPonto.split(':');
-                horaObjetivo = parseInt(hora, 10);
+                horaObjetivo = parseInt(hora, 10) + cargaHoraria;  // Adiciona 6 horas à hora do ponto
                 minutoObjetivo = parseInt(minuto, 10);
                 segundoObjetivo = 0;  // Sempre começa a contagem do segundo 0
+
+                // Se a hora final ultrapassar 24h, ajusta para o formato de 24 horas
+                if (horaObjetivo >= 24) {
+                    horaObjetivo -= 24;
+                }
+
+                // Exibe o horário final (6 horas após o ponto)
+                const horaFinal = String(horaObjetivo).padStart(2, '0');
+                const minutoFinal = String(minutoObjetivo).padStart(2, '0');
+                document.getElementById('final-time').textContent = `Horário final: ${horaFinal}:${minutoFinal}`;
 
                 // Atualiza a contagem assim que o horário é definido
                 atualizarContagem();
